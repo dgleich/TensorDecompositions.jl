@@ -1,7 +1,7 @@
 """
 CUR (columns-U-rows) 3-tensor decomposition.
 """
-struct CUR{T<:Number, 3} <: TensorDecomposition{T, 3}
+struct CUR{T<:Number, N} <: TensorDecomposition{T, 3}
     Cindex::Vector{Int64}
     Cweight::Vector{Int64}
     Rindex::Vector{CartesianIndex{2}}
@@ -18,7 +18,7 @@ struct CUR{T<:Number, 3} <: TensorDecomposition{T, 3}
                  Rindex::Vector{Int64},
                  Rweight::Vector{Int64},
                  U::Matrix{T},
-                 compute_u::Bool) where {T, N}
+                 compute_u::Bool) where {T,N}
 
         if compute_u
             output_index = collect(1:3)
@@ -32,7 +32,7 @@ struct CUR{T<:Number, 3} <: TensorDecomposition{T, 3}
         else
             err = Vector{T}()
         end
-        new(Cindex, Cweight,
+        new{T,N}(Cindex, Cweight,
             CartesianIndices(fiber_size)[Rindex], Rweight,
             U, err)
     end
