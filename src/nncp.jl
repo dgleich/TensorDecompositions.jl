@@ -1,7 +1,7 @@
 """
 Non-negative CANDECOMP tensor decomposition.
 """
-function nncp(tnsr::StridedArray{T,N},
+function nncp(tnsr::AbstractArray{T,N},
               r::Integer;
               tol::Float64=1e-4,
               maxiter::Integer=100,

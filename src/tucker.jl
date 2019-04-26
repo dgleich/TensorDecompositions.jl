@@ -6,14 +6,14 @@ struct Tucker{T<:Number, N} <: TensorDecomposition{T, N}
     core::Array{T, N}               # core tensor
     props::Dict{Symbol, Any}        # extra properties
 
-    Tucker{T, N}(factors::NTuple{N, Matrix{T}}, core::StridedArray{T, N}) where {T<:Number, N} =
+    Tucker{T, N}(factors::NTuple{N, Matrix{T}}, core::AbstractArray{T, N}) where {T<:Number, N} =
         new{T, N}(factors, core, Dict{Symbol, Any}())
 end
 
-Tucker(factors::NTuple{N, Matrix{T}}, core::StridedArray{T, N}) where {T<:Number, N} =
+Tucker(factors::NTuple{N, Matrix{T}}, core::AbstractArray{T, N}) where {T<:Number, N} =
     Tucker{T, N}(factors, core)
 
-function Tucker(factors::AbstractArray{<:StridedMatrix{T}}, core::StridedArray{T, N}) where {T<:Number, N}
+function Tucker(factors::AbstractArray{<:StridedMatrix{T}}, core::AbstractArray{T, N}) where {T<:Number, N}
     length(factors) == N || throw(ArgumentError("Number of factor matrices do not match the core dimensions"))
     Tucker{T, N}(tuple(factors...), core)
 end

@@ -1,7 +1,7 @@
 """
 High-order singular value decomposition (HO-SVD).
 """
-function hosvd(tensor::StridedArray{T,N}, core_dims::NTuple{N, Int};
+function hosvd(tensor::AbstractArray{T,N}, core_dims::NTuple{N, Int};
                pad_zeros::Bool=false, compute_error::Bool=false) where {T,N}
     pad_zeros || _check_tensor(tensor, core_dims)
 
@@ -19,7 +19,7 @@ function hosvd(tensor::StridedArray{T,N}, core_dims::NTuple{N, Int};
     return res
 end
 
-hosvd(tensor::StridedArray, r::Int;
+hosvd(tensor::AbstractArray, r::Int;
       pad_zeros::Bool=false, compute_error::Bool=false) =
     hosvd(tensor, ntuple(_ -> r, ndims(tensor)),
           pad_zeros=pad_zeros, compute_error=compute_error)

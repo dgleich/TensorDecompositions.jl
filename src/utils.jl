@@ -1,6 +1,6 @@
 # utilities
 
-function tensorcontractmatrix!(dest::StridedArray{T,N}, src::StridedArray{T,N},
+function tensorcontractmatrix!(dest::AbstractArray{T,N}, src::AbstractArray{T,N},
                                mtx::StridedMatrix{T}, n::Int;
                                transpose::Bool=false, method::Symbol=:BLAS) where {T,N}
     #@info "TTM: dest=$(size(dest)) src=$(size(src)) mtx=$(size(mtx)) n=$n transpose=$transpose method=$method"
@@ -11,7 +11,7 @@ function tensorcontractmatrix!(dest::StridedArray{T,N}, src::StridedArray{T,N},
                                Val{method})
 end
 
-tensorcontractmatrix(tnsr::StridedArray{T,N}, mtx::StridedMatrix{T}, n::Int;
+tensorcontractmatrix(tnsr::AbstractArray{T,N}, mtx::StridedMatrix{T}, n::Int;
                      transpose::Bool=false, method=nothing) where {T, N} =
     tensorcontractmatrix!(Array{T, N}(undef, ntuple(i -> i != n ? size(tnsr, i)
                                                                 : size(mtx, transpose ? 1 : 2), N)),
@@ -47,7 +47,7 @@ Contract N-mode tensor and M matrices.
   * `modes` corresponding modes of matrices to contract
   * `transpose` if true, matrices are contracted along their columns
 """
-function tensorcontractmatrices(tensor::StridedArray, matrices::Any,
+function tensorcontractmatrices(tensor::AbstractArray, matrices::Any,
                                 modes::Any = 1:length(matrices);
                                 transpose::Bool=false, method::Symbol=:BLAS)
     length(matrices) == length(modes) ||
@@ -158,7 +158,7 @@ group of modes becomes matrix rows and the other one becomes columns.
   * `row_modes` vector of modes to be unfolded as rows
   * `col_modes` vector of modes to be unfolded as columns
 """
-function _unfold(tnsr::StridedArray, row_modes::Vector{Int}, col_modes::Vector{Int})
+function _unfold(tnsr::AbstractArray, row_modes::Vector{Int}, col_modes::Vector{Int})
     length(row_modes) + length(col_modes) == ndims(tnsr) ||
         throw(ArgumentError("column and row modes should be disjoint subsets of 1:$(ndims(tnsr))"))
 
@@ -170,13 +170,13 @@ end
 """
 Unfolds the tensor into matrix such that the specified mode becomes matrix row.
 """
-_row_unfold(tnsr::StridedArray, mode::Integer) =
+_row_unfold(tnsr::AbstractArray, mode::Integer) =
     _unfold(tnsr, [mode], [1:mode-1; mode+1:ndims(tnsr)])
 
 """
 Unfolds the tensor into matrix such that the specified mode becomes matrix column.
 """
-_col_unfold(tnsr::StridedArray, mode::Integer) =
+_col_unfold(tnsr::AbstractArray, mode::Integer) =
     _unfold(tnsr, [1:mode-1; mode+1:ndims(tnsr)], [mode])
 
 function _iter_status(converged::Bool, niters::Integer, maxiter::Integer)
@@ -189,7 +189,7 @@ _check_sign(v::StridedVector) = sign(v[findmax(abs.(v))[2]]) * v
 """
 Checks the validity of the core tensor dimensions.
 """
-function _check_tensor(tnsr::StridedArray{T, N}, core_dims::NTuple{N, Int}) where {T<:Real,N}
+function _check_tensor(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int}) where {T<:Real,N}
     ndims(tnsr) > 2 || throw(ArgumentError("This method does not support scalars, vectors, or matrices input."))
     for i in 1:N
         0 < core_dims[i] <= size(tnsr, i) ||
@@ -202,5 +202,5 @@ end
 """
 Checks the validity of the core tensor dimensions, where core tensor is `r^N` hypercube.
 """
-_check_tensor(tensor::StridedArray{<:Number, N}, r::Integer) where N =
+_check_tensor(tensor::AbstractArray{<:Number, N}, r::Integer) where N =
     _check_tensor(tensor, ntuple(_ -> r, N))

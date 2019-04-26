@@ -56,7 +56,7 @@ function sshopm(tnsr::AbstractArray{T,N},
     pb = Progress(maxiter, "High-order power iterations ")
     while !converged && niters < maxiter
         update!(pb, niters)
-    
+
         copyto!(x_old, x)
         x .= flipsign.(nmul(tnsr, x) .+ alpha .* x, alpha)
         x .*= 1/norm(x)
@@ -69,7 +69,7 @@ function sshopm(tnsr::AbstractArray{T,N},
 end
 
 # (N-1)-way tensor × vector contraction
-function nmul(tnsr::StridedArray{T,N}, x::Vector{T}) where {T, N}
+function nmul(tnsr::AbstractArray{T,N}, x::Vector{T}) where {T, N}
     v = copy(tnsr)
     for i in 2:N
         v = tensorcontract(v, collect(i-1:N), x, N)

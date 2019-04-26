@@ -56,7 +56,7 @@ Calculates canonical polyadic tensor decomposition (CANDECOMP/PARAFAC).
 Returns:
   `CANDECOMP` object
 """
-function candecomp(tnsr::StridedArray{T,N},
+function candecomp(tnsr::AbstractArray{T,N},
                    r::Integer,
                    initial_guess::NTuple{N, Matrix{T}};
                    method::Symbol=:ALS,
@@ -78,7 +78,7 @@ end
 "Stub for non-implemented CANDECOMP algorithms."
 _candecomp(
   method::Val{S},
-  tnsr::StridedArray{T,N},
+  tnsr::AbstractArray{T,N},
   r::Integer,
   factors::Vector{Matrix{T}},
   tol::Float64,
@@ -91,7 +91,7 @@ Computes CANDECOMP by ALS (Alternating Least Squares) method.
 """
 function _candecomp(
     method::Type{Val{:ALS}},
-    tnsr::StridedArray{T,N},
+    tnsr::AbstractArray{T,N},
     r::Integer,
     factors::Vector{Matrix{T}},
     tol::Float64,
@@ -138,7 +138,7 @@ Computes CANDECOMP by SGSD (Simultaneous Generalized Schur Decomposition) method
 """
 function _candecomp(
     method::Type{Val{:SGSD}},
-    tnsr::StridedArray{T, N},
+    tnsr::AbstractArray{T, N},
     r::Int,
     factors::Vector{<:StridedMatrix},
     tol::Float64,

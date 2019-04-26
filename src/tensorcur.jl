@@ -9,7 +9,7 @@ struct CUR{T<:Number, N} <: TensorDecomposition{T, 3}
     U::Matrix{T}
     error::Vector{T}
 
-    function CUR(tnsr::StridedArray{T, N},
+    function CUR(tnsr::AbstractArray{T, N},
                  slab_axis::Integer,
                  fiber_axes::NTuple{2, Int64},
                  fiber_size::NTuple{2, Int64},
@@ -41,7 +41,7 @@ end
 """
 Calculates CUR decomposition for 3-mode tensors.
 """
-function tensorcur3(tnsr::StridedArray,
+function tensorcur3(tnsr::AbstractArray,
                     c::Integer, r::Integer,
                     slab_axis::Integer=3;
                     compute_u::Bool=true)

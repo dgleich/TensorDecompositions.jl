@@ -203,7 +203,7 @@ The implementation is based on ntds_fapg() MATLAB code by Yangyang Xu and Wotao 
 See Y. Xu, "Alternating proximal gradient method for sparse nonnegative Tucker decomposition", Math. Prog. Comp., 7, 39-70, 2015.
 See http://www.caam.rice.edu/~optimization/bcu/`
 """
-function spnntucker(tnsr::StridedArray{T, N}, core_dims::NTuple{N, Int};
+function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
                     core_nonneg::Bool=true, tol::Float64=1e-4, hosvd_init::Bool=false,
                     max_iter::Int=500, max_time::Float64=0.0,
                     lambdas::Vector{Float64} = fill(0.0, N+1),
