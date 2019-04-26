@@ -20,7 +20,7 @@ Returns relative tensor decomposition error, NaN if not available.
 """
 rel_residue(decomp::TensorDecomposition) = get(decomp.props, :rel_residue, NaN)
 
-_set_rel_residue(decomp::TensorDecomposition, error::Float64) = setindex!(decomp.props, error, :rel_residue)
+_set_rel_residue(decomp::TensorDecomposition, error::AbstractFloat) = setindex!(decomp.props, error, :rel_residue)
 
 _set_rel_residue(decomp::TensorDecomposition{T,N}, tensor::StridedArray{T,N}) where {T,N} =
     _set_rel_residue(decomp, rel_residue(decomp, tensor))
