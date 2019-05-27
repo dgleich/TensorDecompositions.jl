@@ -158,13 +158,26 @@ group of modes becomes matrix rows and the other one becomes columns.
   * `row_modes` vector of modes to be unfolded as rows
   * `col_modes` vector of modes to be unfolded as columns
 """
-function _unfold(tnsr::AbstractArray, row_modes::Vector{Int}, col_modes::Vector{Int})
+function _unfold(tnsr::StridedArray, row_modes::Vector{Int}, col_modes::Vector{Int})
     length(row_modes) + length(col_modes) == ndims(tnsr) ||
         throw(ArgumentError("column and row modes should be disjoint subsets of 1:$(ndims(tnsr))"))
 
     dims = size(tnsr)
     return reshape(permutedims(tnsr, [row_modes; col_modes]),
                    prod(dims[row_modes]), prod(dims[col_modes]))
+end
+function _unfold(tnsr::AbstractArray, row_modes::Vector{Int}, col_modes::Vector{Int})
+    length(row_modes) + length(col_modes) == ndims(tnsr) ||
+        throw(ArgumentError("column and row modes should be disjoint subsets of 1:$(ndims(tnsr))"))
+
+    dims = size(tnsr)
+    @show size(tnsr)
+    @show row_modes
+    @show col_modes
+    s = reshape(permutedims(tnsr, [row_modes; col_modes]),
+                   prod(dims[row_modes]), prod(dims[col_modes]))
+    @show size(s)
+    return s
 end
 
 """
