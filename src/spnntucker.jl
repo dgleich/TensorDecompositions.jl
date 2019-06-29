@@ -1,3 +1,5 @@
+import Statistics
+
 """
 State of sparse (semi-)nonnegative Tucker decomposition
 """
@@ -234,7 +236,13 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
             projection_type = Val{:Unbounded}
         end
     end
-
+    nans = isnan.(tnsr)
+    if sum(nans) > 0
+        nanflag = true
+        tnsr[nans] .= Statistics.mean(tnsr[.!nans])
+    else
+        nanflag = false
+    end
     if ini_decomp === nothing
         verbose && @info("Generating random initial factor matrices and core tensor estimates...")
         ini_decomp = Tucker(ntuple(i -> randn(size(tnsr, i), core_dims[i]), N), randn(core_dims...))
@@ -250,8 +258,12 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
         throw(ArgumentError("Incorrect ini_decomp value"))
     end
 
+    if nanflag
+        tnsr[nans] .= TensorDecompositions.compose(ini_decomp)[nans]
+    end
+
     #verbose && @info("Initializing helper object...")
-    helper = SPNNTuckerHelper(tnsr, core_dims, lambdas, bounds, Lmin, verbose = verbose)
+    helper = SPNNTuckerHelper(tnsr, core_dims, lambdas, bounds, Lmin, verbose=verbose)
     verbose && @info("|tensor|=$(helper.tnsr_nrm)")
 
     verbose && @info("Rescaling initial decomposition...")
@@ -298,9 +310,13 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
             helper.L0[N+1] = helper.L[N+1]
             helper.L[N+1] = max(helper.Lmin, prod(factor2_nrms))
 
-            # try to make a step using extrapolated decompositon (Zm,Um)
+            # try to make a step using extrapolated decomposition (Zm, Um)
             _spnntucker_update_core!(projection_type, helper, decomp, decomp_p, factor2s, n)
             residn = _spnntucker_update_factor!(helper, decomp, decomp_p, factor2s, n)
+            if nanflag
+                tnsr[nans] .= TensorDecompositions.compose(decomp)[nans]
+                residn = 0.5*norm(tnsr - compose(decomp))^2 + _spnntucker_reg_penalty(decomp, lambdas)
+            end
             if residn > residn0
                 # extrapolated Zm,Um decomposition lead to residual norm increase,
                 # revert extrapolation and make a step using Z0,U0 to ensure
@@ -359,6 +375,9 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
             break
         end
     end # iterations
+    if nanflag
+        tnsr[nans] .= NaN
+    end
     finish!(pb)
 
     res = decomp0
