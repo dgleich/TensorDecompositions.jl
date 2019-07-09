@@ -163,8 +163,7 @@ function _unfold(tnsr::StridedArray, row_modes::Vector{Int}, col_modes::Vector{I
         throw(ArgumentError("column and row modes should be disjoint subsets of 1:$(ndims(tnsr))"))
 
     dims = size(tnsr)
-    return reshape(permutedims(tnsr, [row_modes; col_modes]),
-                   prod(dims[row_modes]), prod(dims[col_modes]))
+    return reshape(permutedims(tnsr, [row_modes; col_modes]), prod(dims[row_modes]), prod(dims[col_modes]))
 end
 function _unfold(tnsr::AbstractArray, row_modes::Vector{Int}, col_modes::Vector{Int})
     length(row_modes) + length(col_modes) == ndims(tnsr) ||
@@ -174,8 +173,8 @@ function _unfold(tnsr::AbstractArray, row_modes::Vector{Int}, col_modes::Vector{
     @show size(tnsr)
     @show row_modes
     @show col_modes
-    s = reshape(permutedims(tnsr, [row_modes; col_modes]),
-                   prod(dims[row_modes]), prod(dims[col_modes]))
+    @show size(tnsr)
+    s = reshape(permutedims(tnsr, [row_modes; col_modes]), prod(dims[row_modes]), prod(dims[col_modes]))
     @show size(s)
     return s
 end
