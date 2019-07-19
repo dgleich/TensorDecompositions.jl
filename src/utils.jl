@@ -1,3 +1,5 @@
+import DistributedArrays
+
 # utilities
 
 function tensorcontractmatrix!(dest::AbstractArray{T,N}, src::AbstractArray{T,N},
@@ -165,17 +167,22 @@ function _unfold(tnsr::StridedArray, row_modes::Vector{Int}, col_modes::Vector{I
     dims = size(tnsr)
     return reshape(permutedims(tnsr, [row_modes; col_modes]), prod(dims[row_modes]), prod(dims[col_modes]))
 end
-function _unfold(tnsr::AbstractArray, row_modes::Vector{Int}, col_modes::Vector{Int})
+function _unfold(tnsr::DistributedArrays.DArray{T,N,Array{T,N}}, row_modes::Vector{Int}, col_modes::Vector{Int}) where {T, N}
     length(row_modes) + length(col_modes) == ndims(tnsr) ||
         throw(ArgumentError("column and row modes should be disjoint subsets of 1:$(ndims(tnsr))"))
-
     dims = size(tnsr)
-    @show size(tnsr)
-    @show row_modes
-    @show col_modes
-    @show size(tnsr)
-    s = reshape(permutedims(tnsr, [row_modes; col_modes]), prod(dims[row_modes]), prod(dims[col_modes]))
-    @show size(s)
+    if row_modes[1] == 1
+        row_modes_new = row_modes
+        col_modes_new = col_modes
+    else
+        row_modes_new = [1]
+        col_modes_new = [i for i = 2:N]
+        a = [i for i = 1:N]
+        k = a .!= row_modes[1]
+        v = [row_modes[1], a[k]...]
+        dims = dims[v]
+    end
+    s = reshape(permutedims(Core.eval(TensorDecompositions, Symbol("dX$(row_modes[1])")), [row_modes_new; col_modes_new]), prod(dims[row_modes_new]), prod(dims[col_modes_new]))
     return s
 end
 
@@ -216,3 +223,19 @@ Checks the validity of the core tensor dimensions, where core tensor is `r^N` hy
 """
 _check_tensor(tensor::AbstractArray{<:Number, N}, r::Integer) where N =
     _check_tensor(tensor, ntuple(_ -> r, N))
+
+function distribute(X::AbstractArray{T,N}) where {T,N}
+    sz = size(X)
+    @info "Dimension 1: Distributing array with size $(sz)"
+    dX = DistributedArrays.distribute(X)
+    global dX1 = dX
+    for i = 2:N
+        a = [i for i = 1:N]
+        k = a .!= i
+        v = [i, a[k]...]
+        vb = "dX$i"
+        @info "Dimension $i: Distributing array with size $(sz[v])"
+        @eval(global $(Symbol(vb)) = DistributedArrays.distribute(permutedims($X, $v)))
+    end
+    return dX
+end
