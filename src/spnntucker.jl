@@ -32,7 +32,7 @@ struct SPNNTuckerHelper{T<:Number, N}
     L0::Vector{Float64}
     arr_pool::ArrayPool{T}
 
-    function SPNNTuckerHelper(tnsr::Array{T,N}, core_dims::NTuple{N,Int},
+    function SPNNTuckerHelper(tnsr::AbstractArray{T,N}, core_dims::NTuple{N,Int},
                               lambdas::Vector{Float64}, bounds::Vector{T},
                               Lmin::Float64; verbose::Bool=false) where {T, N}
         verbose && @info("Precomputing input tensor unfoldings...")
