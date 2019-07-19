@@ -10,7 +10,6 @@ struct CANDECOMP{T<:Number, N} <: TensorDecomposition{T, N}
     new(factors, lambdas, Dict{Symbol, Any}())
 end
 
-
 CANDECOMP(factors::NTuple{N, Matrix{T}}, lambdas::Vector{T}) where {T<:Number, N} =
     CANDECOMP{T, N}(factors, lambdas)
 
