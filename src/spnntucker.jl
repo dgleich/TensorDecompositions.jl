@@ -1,4 +1,5 @@
 import Statistics
+import DistributedArrays
 
 """
 State of sparse (semi-)nonnegative Tucker decomposition
@@ -20,7 +21,7 @@ end
 Helper object for spnntucker().
 """
 struct SPNNTuckerHelper{T<:Number, N}
-    tnsr::Array{T, N}
+    tnsr::AbstractArray{T, N}
     tnsr_nrm::Float64
     core_dims::NTuple{N,Int}
     tnsrXfactors_low::Vector{Array{T, N}}
