@@ -67,10 +67,10 @@ function _spnntucker_factor_grad_components!(helper::SPNNTuckerHelper{T,N}, deco
                                               decomp.factors[all_but_n], all_but_n, transpose=true)
     cXa2 = tensorcontract!(1, coreXantifactor, 1:N, 'N',
                     coreXantifactor, [1:(n-1); N+1; (n+1):N], 'N',
-                    0, acquire!(helper, (helper.core_dims[n], helper.core_dims[n])), [n, N+1], method=:BLAS)
+                    0, acquire!(helper, (helper.core_dims[n], helper.core_dims[n])), [n, N+1])
     tXcXa = tensorcontract!(1, helper.tnsr, 1:N, 'N',
                     coreXantifactor, [1:(n-1); N+1; (n+1):N], 'N',
-                    0, acquire!(helper, size(decomp.factors[n])), [n, N+1], method=:BLAS)
+                    0, acquire!(helper, size(decomp.factors[n])), [n, N+1])
     release!(helper, coreXantifactor)
     return cXa2, tXcXa
 end

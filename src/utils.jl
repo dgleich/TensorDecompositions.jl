@@ -6,11 +6,20 @@ function tensorcontractmatrix!(dest::AbstractArray{T,N}, src::AbstractArray{T,N}
                                mtx::StridedMatrix{T}, n::Int;
                                transpose::Bool=false, method::Symbol=:BLAS) where {T,N}
     #@info "TTM: dest=$(size(dest)) src=$(size(src)) mtx=$(size(mtx)) n=$n transpose=$transpose method=$method"
-    TensorOperations.contract!(1, src, Val{:N}, mtx, Val{:N}, 0, dest,
+    @show size(src)
+    @show size(dest)
+    @show size(mtx)
+    @show typeof(src)
+    @show typeof(dest)
+    @show typeof(mtx)
+    @show ntuple(i -> i<n ? i : (i+1), N-1), (n,)
+    @show transpose ? (1,) : (2,), transpose ? (2,) : (1,)
+    @show ntuple(i -> i<n ? i : (i==n ? N : i-1), N)
+    TensorOperations.contract!(1, src, :N, mtx, :N, 0, dest,
                                ntuple(i -> i<n ? i : (i+1), N-1), (n,),
                                transpose ? (1,) : (2,), transpose ? (2,) : (1,),
-                               ntuple(i -> i<n ? i : (i==n ? N : i-1), N),
-                               Val{method})
+                               ntuple(i -> i<n ? i : (i==n ? N : i-1), N)
+                                 )
 end
 
 tensorcontractmatrix(tnsr::AbstractArray{T,N}, mtx::StridedMatrix{T}, n::Int;
