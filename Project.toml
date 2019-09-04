@@ -1,6 +1,6 @@
 name = "TensorDecompositions2"
 uuid = "381732bb-ee29-51ab-b667-ca9e03a50260"
-version = "0.1.0"
+version = "1.0.0"
 
 [compat]
 TensorOperations = "≥ 1.1.0"
