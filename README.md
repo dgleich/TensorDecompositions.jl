@@ -1,12 +1,19 @@
 # TensorDecompositions2.jl
 
-A Julia implementation of tensor decomposition algorithms
+### Installation
 
-[![Build Status](https://travis-ci.org/yunjhongwu/TensorDecompositions.jl.svg?branch=master)](https://travis-ci.org/yunjhongwu/TensorDecompositions.jl) [![Coverage Status](https://coveralls.io/repos/yunjhongwu/TensorDecompositions.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/yunjhongwu/TensorDecompositions.jl?branch=master)
+After starting Julia, execute:
 
--------
-### What's new
- - Compatible with Julia v0.7/v1.0
+```julia
+import Pkg; Pkg.add(Pkg.PackageSpec(url="https://github.com/TensorDecompositions/TensorDecompositions2.jl.git", rev="master"))
+```
+
+or
+
+```julia
+import Pkg; Pkg.dev("https://github.com/TensorDecompositions/TensorDecompositions2.jl.git")
+```
+
 
 ### Available functions
 
