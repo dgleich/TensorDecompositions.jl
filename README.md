@@ -1,21 +1,21 @@
-# TensorDecompositions.jl
+# TensorDecompositions2.jl
 
 A Julia implementation of tensor decomposition algorithms
 
 [![Build Status](https://travis-ci.org/yunjhongwu/TensorDecompositions.jl.svg?branch=master)](https://travis-ci.org/yunjhongwu/TensorDecompositions.jl) [![Coverage Status](https://coveralls.io/repos/yunjhongwu/TensorDecompositions.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/yunjhongwu/TensorDecompositions.jl?branch=master)
 
-------- 
+-------
 ### What's new
  - Compatible with Julia v0.7/v1.0
-  
-### Available functions 
+
+### Available functions
 
 1. The following functions for **Tucker decompositions**, except for `sshopm`, return a `Tucker`, which contains `factors::Vector{Matrix{Float64}}`, `core::Array{Float64}` (1-dimensional array for **Kruskal decompositions**), and the relative reconstruction error `error::Float64`.
 
-  - **High-order SVD (HOSVD)** [3] `hosvd{T,N}(tnsr::StridedArray{T,N}, core_dims::NTuple{N, Int}; pad_zeros::Bool=false, compute_error::Bool=false)` 
+  - **High-order SVD (HOSVD)** [3] `hosvd{T,N}(tnsr::StridedArray{T,N}, core_dims::NTuple{N, Int}; pad_zeros::Bool=false, compute_error::Bool=false)`
 
   - **Canonical polyadic decomposition (CANDECOMP/PARAFAC)** `candecomp{T,N}(tnsr::StridedArray{T,N}, r::Integer, initial_guess::NTuple{N, Matrix{T}}; method::Symbol=:ALS, tol::Float64=1e-5, maxiter::Integer=100, compute_error::Bool=false, verbose::Bool=true)`. This function provides two algorithms, set by `method` argument, for fitting the CANDECOMP model:
-    - *ALS* (default): Alternating least square method [3] 
+    - *ALS* (default): Alternating least square method [3]
     - *SGSD*: Simultaneous generalized Schur decomposition [1]
 
   - **Non-negative CANDECOMP/PARAFAC** by the block-coordinate update method [7] `nncp(tnsr::StridedArray, r::Integer; tol::Float64=1e-4, maxiter::Integer=100, compute_error::Bool=false, verbose::Bool=true)`
@@ -24,8 +24,8 @@ A Julia implementation of tensor decomposition algorithms
 
   - **Symmetric rank-1 approximation for symmetric tensors** by shifted symmetric higher-order power method (SS-HOPM) [4] `sshopm{T,N}(tnsr::AbstractArray{T,N}, alpha::Real; tol::Float64=1e-5, maxiter::Int=100, verbose::Bool=false)`. This function requires a shifting parameter `alpha` and returns an eigenpair of *tnsr*, represented by a tuple `(Float64, Vector{Float64})`. Note that this functions does NOT check symmetry of input tensors. This implementation takes both dense representation `StridedArray` and sparse representation `(Matrix{Int64}, StridedVector, Integer)`, which contains indexes, as column vectors of the matrix in the first component of the tuple, corresponding values, and dimension of a mode.
 
-  - **Sparse (semi-)nonnegative Tucker decomposition** by the alternating proximal gradient method [6] `spnntucker{T,N}(tnsr::StridedArray{T, N}, core_dims::NTuple{N, Int}; core_nonneg::Bool=true, tol::Float64=1e-4, hosvd_init::Bool=false, max_iter::Int=500, max_time::Float64=0.0, lambdas::Vector{Float64} = fill(0.0, N+1), Lmin::Float64 = 1.0, rw::Float64=0.9999, bounds::Vector{Float64} = fill(Inf, N+1), ini_decomp = nothing, verbose::Bool=false)`. 
-  
+  - **Sparse (semi-)nonnegative Tucker decomposition** by the alternating proximal gradient method [6] `spnntucker{T,N}(tnsr::StridedArray{T, N}, core_dims::NTuple{N, Int}; core_nonneg::Bool=true, tol::Float64=1e-4, hosvd_init::Bool=false, max_iter::Int=500, max_time::Float64=0.0, lambdas::Vector{Float64} = fill(0.0, N+1), Lmin::Float64 = 1.0, rw::Float64=0.9999, bounds::Vector{Float64} = fill(Inf, N+1), ini_decomp = nothing, verbose::Bool=false)`.
+
 
 2. **Tensor-CUR** for 3-mode tensors [5] is a randomized algorithm and returns a `CUR`, which includes indexes of *c* slabs (along axis *slab_index*) and *r* fibers, matrix *U*, and the relative reconstruction error of slabs. Note that this function samples with replacement, and the numbers of repeated samples are stored in `Cweight` and `Rweight`.
 
@@ -39,7 +39,7 @@ A Julia implementation of tensor decomposition algorithms
 + Common parameters:
   - `tnsr::StridedArray`: Data tensor
   - `r::Integer`: Number of components/factors
-  - `tol::Float64`: Tolerance to achieve 
+  - `tol::Float64`: Tolerance to achieve
   - `maxiter::Integer`: Maximum number of iterations
   - `verbose::Bool`: Print status when iterative algorithms terminate
 
@@ -73,16 +73,16 @@ Dict{Symbol,Any} with 1 entry:
 
 julia> F.factors[1]
 10x1 Array{Float64,2}:
-  0.0676683 
- -0.0985366 
- -0.239748  
-  0.0821674 
- -0.0547672 
+  0.0676683
+ -0.0985366
+ -0.239748
+  0.0821674
+ -0.0547672
  -0.00892641
-  0.0220593 
- -0.058075  
- -0.135493  
-  0.23256 
+  0.0220593
+ -0.058075
+ -0.135493
+  0.23256
 
 ```
 
@@ -98,7 +98,7 @@ julia> F.factors[1]
   - Inefficiency of unfolding (matricizing), which has a significant impact on the performance of `candecomp` (`method:=ALS`) and `parafac2`
 
 ### Future plan
-  - Improving performance 
+  - Improving performance
   - More algorithms for fitting CANDECOMP/PARAFAC and non-negative tensor decompositions
   - Probabilistic tensor decompositions
   - Algorithms for factorizing sparse tensors
@@ -115,7 +115,7 @@ julia> F.factors[1]
 
  - [5] Mahoney, M. W., Maggioni, M., & Drineas, P. (2008). Tensor-CUR decompositions for tensor-based data. *SIAM Journal on Matrix Analysis and Applications*, 30(3), 957-987.
 
- - [6] Xu, Y. (2015). Alternating proximal gradient method for sparse nonnegative Tucker decomposition. *Mathematical Programming Computation*, 7(1), 39-70.  
+ - [6] Xu, Y. (2015). Alternating proximal gradient method for sparse nonnegative Tucker decomposition. *Mathematical Programming Computation*, 7(1), 39-70.
  - [7] Xu, Y., & Yin, W. (2013). A block coordinate descent method for regularized multiconvex optimization with applications to nonnegative tensor factorization and completion. *SIAM Journal on Imaging Sciences*, 6(3), 1758-1789.
 
 ### Special thanks
