@@ -216,7 +216,7 @@ function _unfold(tnsr::DistributedArrays.DArray{T,N,Array{T,N}}, row_modes::Vect
         v = [row_modes[1], a[k]...]
         dims = dims[v]
     end
-    s = reshape(permutedims(Core.eval(TensorDecompositions, Symbol("dX$(row_modes[1])")), [row_modes_new; col_modes_new]), prod(dims[row_modes_new]), prod(dims[col_modes_new]))
+    s = reshape(permutedims(Core.eval(TensorDecompositions2, Symbol("dX$(row_modes[1])")), [row_modes_new; col_modes_new]), prod(dims[row_modes_new]), prod(dims[col_modes_new]))
     return s
 end
 

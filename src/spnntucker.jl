@@ -260,7 +260,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
     end
 
     if nanflag
-        tnsr[nans] .= TensorDecompositions.compose(ini_decomp)[nans]
+        tnsr[nans] .= TensorDecompositions2.compose(ini_decomp)[nans]
     end
 
     #verbose && @info("Initializing helper object...")
@@ -315,7 +315,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
             _spnntucker_update_core!(projection_type, helper, decomp, decomp_p, factor2s, n)
             residn = _spnntucker_update_factor!(helper, decomp, decomp_p, factor2s, n)
             if nanflag
-                tnsr[nans] .= TensorDecompositions.compose(decomp)[nans]
+                tnsr[nans] .= TensorDecompositions2.compose(decomp)[nans]
                 residn = 0.5*norm(tnsr - compose(decomp))^2 + _spnntucker_reg_penalty(decomp, lambdas)
             end
             if residn > residn0
