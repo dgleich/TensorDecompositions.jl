@@ -7,4 +7,4 @@ julia:
 notifications:
     email: false
 after_success:
-  - julia -e 'import Pkg; import TensorDecompositions2; cd(joinpath(dirname(pathof(TensorDecompositions2)))); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia -e 'import Pkg; import TensorDecompositions; cd(joinpath(dirname(pathof(TensorDecompositions)))); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

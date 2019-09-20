@@ -1,4 +1,4 @@
-module TensorDecompositions2
+module TensorDecompositions
     using TensorOperations
     using Distributions
     using ProgressMeter
@@ -10,7 +10,7 @@ module TensorDecompositions2
 
     # types
     SparseArray,
-    TensorDecompositions2, PARAFAC2, CANDECOMP, CUR, Tucker,
+    TensorDecompositions, PARAFAC2, CANDECOMP, CUR, Tucker,
 
     # TensorDecomposition methods
     rel_residue,

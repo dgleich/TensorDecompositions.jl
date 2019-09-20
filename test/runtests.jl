@@ -1,4 +1,4 @@
-using TensorDecompositions2
+using TensorDecompositions
 using TensorOperations
 using Test
 using Random
@@ -18,8 +18,8 @@ include("test_spnntucker.jl")
 #=
 using Lint
 using TypeCheck
-lintpkg("TensorDecompositions2")
-checkreturntypes(TensorDecompositions2)
-checklooptypes(TensorDecompositions2)
-checkmethodcalls(TensorDecompositions2)
+lintpkg("TensorDecompositions")
+checkreturntypes(TensorDecompositions)
+checklooptypes(TensorDecompositions)
+checkmethodcalls(TensorDecompositions)
 =#
