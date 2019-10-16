@@ -1,3 +1,5 @@
+import LinearAlgebra
+
 """
 Abstract decomposition of N-mode tensor.
 """
@@ -6,8 +8,10 @@ abstract type TensorDecomposition{T<:Number, N} end
 """
 Returns relative error between the re-composed and the original tensors.
 """
-rel_residue(recomposed::AbstractArray{T, N}, tensor::AbstractArray{T, N}) where {T,N} =
-    norm(recomposed .- tensor) / norm(tensor)
+function rel_residue(recomposed::AbstractArray{T, N}, tensor::AbstractArray{T, N}) where {T,N}
+	nans = .!isnan.(tensor)
+    LinearAlgebra.norm(recomposed[nans] .- tensor[nans]) / LinearAlgebra.norm(tensor[nans])
+end
 
 """
 Returns relative error between re-composed and the original tensor.
