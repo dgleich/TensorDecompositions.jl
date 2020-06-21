@@ -14,7 +14,6 @@ struct SPNNTuckerState
         sqr_residue = max(0.0, sqr_residue)
         new(sqr_residue, sqrt(2*sqr_residue)/tnsr_nrm, abs(sqr_residue-prev_sqr_residue)/(prev_sqr_residue+1E-5))
     end
-
 end
 
 """
@@ -22,26 +21,26 @@ Helper object for spnntucker().
 """
 struct SPNNTuckerHelper{T<:Number, N}
     tnsr::AbstractArray{T, N}
-    tnsr_nrm::Float64
+    tnsr_nrm::T
     core_dims::NTuple{N,Int}
     tnsrXfactors_low::Vector{Array{T, N}}
     lambdas::Vector{T}
     bounds::Vector{T}
     Lmin::Float64
     #tmp_core_unfold::Vector{Matrix{T}}
-    L::Vector{Float64}   # previous Lipschitz constants
-    L0::Vector{Float64}
+    L::Vector{T}   # previous Lipschitz constants
+    L0::Vector{T}
     arr_pool::ArrayPool{T}
 
     function SPNNTuckerHelper(tnsr::AbstractArray{T,N}, core_dims::NTuple{N,Int},
-                              lambdas::Vector{Float64}, bounds::Vector{T},
+                              lambdas::Vector{T}, bounds::Vector{T},
                               Lmin::Float64; verbose::Bool=false) where {T, N}
         verbose && @info("Precomputing input tensor unfoldings...")
         tnsr_dims = size(tnsr)
         new{T,N}(tnsr, norm(tnsr), core_dims,
                  [Array{T,N}(undef, ntuple(i -> i <= n ? core_dims[i] : tnsr_dims[i], N)) for n in 1:N],
                  lambdas, bounds,
-                 Lmin, fill(1.0, N+1), fill(1.0, N+1), ArrayPool{T}()
+                 Lmin, convert.(T, fill(1.0, N+1)), convert.(T, fill(1.0, N+1)), ArrayPool{T}()
         )
     end
 end
@@ -104,7 +103,7 @@ function _spnntucker_update_core!(prj::Type{Val{PRJ}},
         helper.tnsrXfactors_low[N]
     s = (1.0/helper.L[N+1])
     core_grad = tensorcontractmatrices!(acquire!(helper, helper.core_dims), src.core, src_factor2s)
-    s_lambda = (helper.lambdas[N+1]/helper.L[N+1])::Float64
+    s_lambda = (helper.lambdas[N+1]/helper.L[N+1])::T
     bound = helper.bounds[N+1]
     dest.core .= _spnntucker_project.(prj, src.core .- s .* (core_grad .- tensorXfactors_all),
                                       s_lambda, bound)
@@ -209,9 +208,9 @@ See http://www.caam.rice.edu/~optimization/bcu/`
 function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
                     core_nonneg::Bool=true, tol::Float64=1e-4, hosvd_init::Bool=false,
                     max_iter::Int=500, max_time::Float64=0.0,
-                    lambdas::Vector{Float64} = fill(0.0, N+1),
+                    lambdas::Vector{T} = convert.(T, fill(0.0, N+1)),
                     Lmin::Float64 = 1.0, rw::Float64=0.9999,
-                    bounds::Vector{Float64} = fill(Inf, N+1), ini_decomp = nothing,
+                    bounds::Vector{T} = convert.(T, fill(Inf, N+1)), ini_decomp = nothing,
                     verbose::Bool=false) where {T,N}
     start_time = time()
 
@@ -264,7 +263,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
     end
 
     #verbose && @info("Initializing helper object...")
-    helper = SPNNTuckerHelper(tnsr, core_dims, lambdas, bounds, Lmin, verbose=verbose)
+    helper = SPNNTuckerHelper(tnsr, core_dims, lambdas, bounds, Lmin; verbose=verbose)
     verbose && @info("|tensor|=$(helper.tnsr_nrm)")
 
     verbose && @info("Rescaling initial decomposition...")
@@ -352,7 +351,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
         resid = residn0
 
         #verbose && @info("Storing statistics...")
-        cur_state = SPNNTuckerState(resid, resid0, helper.tnsr_nrm)
+        cur_state = SPNNTuckerState(resid, resid0, convert(Float64, helper.tnsr_nrm))
         push!(iter_diag, cur_state)
 
         # check stopping criterion
