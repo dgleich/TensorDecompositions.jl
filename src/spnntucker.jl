@@ -384,7 +384,8 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
     res.props[:niter] = niter
     res.props[:nredo] = nredo
     res.props[:converged] = converged
-    res.props[:rel_residue] = 2*sqrt(resid-_spnntucker_reg_penalty(decomp, lambdas))/helper.tnsr_nrm
+    resid = max(0, resid)
+    res.props[:rel_residue] = 2*sqrt(resid -_spnntucker_reg_penalty(decomp, lambdas))/helper.tnsr_nrm
     res.props[:iter_diag] = iter_diag
     return res
 end
