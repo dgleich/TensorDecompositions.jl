@@ -143,8 +143,11 @@ function _spnntucker_update_factor!(
 	release!(helper, tnsrXcoreXantifactor)
 	release!(helper, factorXcoreXantifactor2)
 
-	return 0.5*(factor2XcoreXantifactor2-2*factorXtnsrXcoreXantifactor+helper.tnsr_nrm^2) +
-			_spnntucker_reg_penalty(dest, helper.lambdas)
+	r = factor2XcoreXantifactor2 - 2 * factorXtnsrXcoreXantifactor + helper.tnsr_nrm^2
+	if r < 0
+		r = factor2XcoreXantifactor2 + helper.tnsr_nrm^2
+	end
+	return 0.5*(r) + _spnntucker_reg_penalty(dest, helper.lambdas)
 end
 
 function _spnntucker_update_proxy_factor!(
@@ -296,7 +299,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
 	nredo = 0
 	converged = false
 
-	#verbose && @info("Starting iterations...")
+	verbose && @info("Starting iterations...")
 	pb = Progress(max_iter, "Alternating proximal gradient iterations ")
 	niter = 1
 	while !converged
@@ -330,13 +333,13 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
 			end
 			# --- correction and extrapolation ---
 			t[n] = (1.0+sqrt(1.0+4.0*t0[n]^2))/2.0
-			#verbose && @info("Updating proxy factors $n...")
+			verbose && @info("Updating proxy factors $n...")
 			_spnntucker_update_proxy_factor!(decomp_p, decomp, decomp0, n, min((t0[n]-1)/t[n], rw*sqrt(helper.L0[n]/helper.L[n])))
 			t[N+1] = (1.0+sqrt(1.0+4.0*t0[N+1]^2))/2.0
-			#verbose && @info("Updating proxy core $n...")
+			verbose && @info("Updating proxy core $n...")
 			_spnntucker_update_proxy_core!(decomp_p, decomp, decomp0, min((t0[N+1]-1)/t[N+1], rw*sqrt(helper.L0[N+1]/helper.L[N+1])))
 
-			#verbose && @info("Storing updated core and factors...")
+			verbose && @info("Storing updated core and factors...")
 			copyto!(decomp0.core, decomp.core)
 			copyto!(decomp0.factors[n], decomp.factors[n])
 			copyto!(factor2s0[n], factor2s[n])
@@ -350,7 +353,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
 		resid0 = resid
 		resid = residn0
 
-		#verbose && @info("Storing statistics...")
+		verbose && @info("Storing statistics...")
 		cur_state = SPNNTuckerState(resid, resid0, convert(Float64, helper.tnsr_nrm))
 		push!(iter_diag, cur_state)
 
