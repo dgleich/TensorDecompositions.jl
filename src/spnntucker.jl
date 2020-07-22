@@ -213,7 +213,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
 					max_iter::Int=500, max_time::Float64=0.0,
 					lambdas::Vector{T} = convert.(T, fill(0.0, N+1)),
 					Lmin::Float64 = 1.0, rw::Float64=0.9999,
-					bounds::Vector{T} = convert.(T, fill(Inf, N+1)), ini_decomp = nothing,
+					bounds::Vector{T} = convert.(T, fill(Inf, N+1)), ini_decomp::Symbol=:none,
 					verbose::Bool=false) where {T,N}
 	start_time = time()
 
@@ -246,7 +246,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
 	else
 		nanflag = false
 	end
-	if ini_decomp === nothing
+	if ini_decomp == :none
 		verbose && @info("Generating random initial factor matrices and core tensor estimates...")
 		ini_decomp = Tucker(ntuple(i -> randn(size(tnsr, i), core_dims[i]), N), randn(core_dims...))
 		rescale_ini = true
