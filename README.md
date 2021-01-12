@@ -4,7 +4,7 @@ This is a modified fork of [TensorDecompositions.jl](https://github.com/yunjhong
 
 **TensorDecompositions** is a module required by [NTFk](https://github.com/SmartTensors//NTFk.jl).
 
-For more information, visit [tensors.lanl.gov](http://tensors.lanl.gov) or [smarttensors.github.io/](https://smarttensors.github.io/)
+For more information, visit [tensors.lanl.gov](http://tensors.lanl.gov) or [smarttensors.github.io](https://smarttensors.github.io/)
 
 ### Installation
 
