@@ -16,7 +16,7 @@ struct PARAFAC2{T<:Number, N} <: TensorDecomposition{T, N}
         @assert size(B, 2) == N
         factors = ntuple(N) do i
             u = svd((F .* view(B, :, i)) * (X[i] * A)')
-            return u.V * (u.U'F)
+            return u.V * (u.U' * F)
         end
         return new{T, N}(factors, B, A, Dict{Symbol,Any}())
     end
