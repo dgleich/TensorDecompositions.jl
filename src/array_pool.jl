@@ -12,7 +12,7 @@ end
 Gets an array of specific size from the pool.
 The returned array should be returned back to the pool using `release!()`.
 """
-function acquire!(pool::ArrayPool{T}, size) where T
+function acquire!(pool::ArrayPool{T}, size) where {T <: Number}
     len = prod(size)
     len_pool = haskey(pool.length_pools, len) ?
                pool.length_pools[len] :
@@ -25,7 +25,7 @@ end
 """
 Releases an array returned by `acquire!()` back into the pool.
 """
-function release!(pool::ArrayPool{T}, arr::Array{T}) where T
+function release!(pool::ArrayPool{T}, arr::Array{T}) where {T <: Number}
     len = length(arr)
     len_pool = get(pool.length_pools, len, nothing)
     if len_pool !== nothing

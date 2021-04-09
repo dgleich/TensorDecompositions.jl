@@ -6,7 +6,7 @@ function nncp(tnsr::AbstractArray{T,N},
               tol::Float64=1e-4,
               maxiter::Integer=100,
               compute_error::Bool=false,
-              verbose::Bool=true) where {T,N}
+              verbose::Bool=true) where {T <: Number, N}
 
     all(x -> x >= 0, tnsr) || throw(ArgumentError("Input tensor must be nonnegative."))
     num_modes = _check_tensor(tnsr, r)

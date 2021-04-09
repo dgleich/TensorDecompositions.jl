@@ -18,7 +18,7 @@ struct CUR{T<:Number, N} <: TensorDecomposition{T, 3}
                  Rindex::Vector{Int64},
                  Rweight::Vector{Int64},
                  U::Matrix{T},
-                 compute_u::Bool) where {T,N}
+                 compute_u::Bool) where {T <: Number, N}
 
         if compute_u
             output_index = collect(1:3)

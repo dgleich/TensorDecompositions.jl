@@ -2,7 +2,7 @@
 High-order singular value decomposition (HO-SVD).
 """
 function hosvd(tensor::AbstractArray{T,N}, core_dims::NTuple{N, Int};
-               pad_zeros::Bool=false, compute_error::Bool=false) where {T,N}
+               pad_zeros::Bool=false, compute_error::Bool=false) where {T <: Number, N}
     pad_zeros || _check_tensor(tensor, core_dims)
 
     factors = map(1:N) do i

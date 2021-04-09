@@ -11,7 +11,7 @@ struct PARAFAC2{T<:Number, N} <: TensorDecomposition{T, N}
                    X::Vector{Matrix{T}},
                    F::Matrix{T},
                    B::Matrix{T},
-                   A::Matrix{T}) where T
+                   A::Matrix{T}) where {T <: Number}
         N = length(X)
         @assert size(B, 2) == N
         factors = ntuple(N) do i
@@ -31,7 +31,7 @@ function parafac2(X::AbstractVector{<:StridedMatrix{T}},
                   tol::Float64=1e-5,
                   maxiter::Integer=100,
                   compute_error::Bool=false,
-                  verbose::Bool=true) where T
+                  verbose::Bool=true) where {T <: Number}
     m = length(X)
     n = size(X[1], 2)
     all(Xi -> size(Xi, 2) == n, X) ||

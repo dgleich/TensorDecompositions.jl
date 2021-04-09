@@ -21,7 +21,7 @@ LinearAlgebra.rank(decomp::CANDECOMP) = length(decomp.lambdas)
 """
 Re-composes the tensor from CANDECOMP decomposition.
 """
-@generated function compose!(dest::Array{T,N}, factors::NTuple{N, Matrix{T}}, lambdas::Vector{T}) where {T,N}
+@generated function compose!(dest::Array{T,N}, factors::NTuple{N, Matrix{T}}, lambdas::Vector{T}) where {T <: Number, N}
   quote
     csize = @ntuple($N, k -> size(factors[k], 2))
     @nall($N, k -> csize[k] == length(lambdas)) ||
@@ -41,12 +41,12 @@ Re-composes the tensor from CANDECOMP decomposition.
   end
 end
 
-compose(factors::NTuple{N, Matrix{T}}, lambdas::Vector{T}) where {T,N} =
+compose(factors::NTuple{N, Matrix{T}}, lambdas::Vector{T}) where {T <: Number, N} =
     compose!(Array{T, N}(undef, ntuple(i -> size(factors[i], 1), N)), factors, lambdas)
 
 compose(decomp::CANDECOMP) = compose(decomp.factors, decomp.lambdas)
 
-compose!(dest::Array{T,N}, decomp::CANDECOMP{T,N}) where {T,N} =
+compose!(dest::Array{T,N}, decomp::CANDECOMP{T,N}) where {T <: Number, N} =
     compose!(dest, decomp.factors, decomp.lambdas)
 
 """
@@ -62,7 +62,7 @@ function candecomp(tnsr::AbstractArray{T,N},
                    tol::Float64=1e-5,
                    maxiter::Integer=100,
                    compute_error::Bool=false,
-                   verbose::Bool=true) where {T,N}
+                   verbose::Bool=true) where {T <: Number, N}
 
     _check_tensor(tnsr, r)
     verbose && @info("initializing factor matrices...")
@@ -95,7 +95,7 @@ function _candecomp(
     factors::Vector{Matrix{T}},
     tol::Float64,
     maxiter::Integer,
-    verbose::Bool) where {T,N}
+    verbose::Bool) where {T <: Number, N}
 
     gram = [F'F for F in factors]
     tnsr_norm = norm(tnsr)
@@ -142,7 +142,7 @@ function _candecomp(
     factors::Vector{<:StridedMatrix},
     tol::Float64,
     maxiter::Integer,
-    verbose::Bool) where {T,N}
+    verbose::Bool) where {T <: Number, N}
 
     ndims(tnsr) == 3 || throw(ArgumentError("This algorithm only applies to 3-mode tensors."))
     length(factors) == 3 || throw(ArgumentError("3 factor matrices expected."))

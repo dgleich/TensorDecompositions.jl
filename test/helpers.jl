@@ -13,7 +13,7 @@ rand_tucker(core_dims::NTuple{N, Int}, dims::NTuple{N, Int};
     Tucker(ntuple(i -> randn_tensor((dims[i], core_dims[i]), factors_nonneg), N),
            randn_tensor(core_dims, core_nonneg))
 
-function add_noise(tnsr::Array{T,N}, sn_ratio = 0.6, nonnegative::Bool = false) where {T,N}
+function add_noise(tnsr::Array{T,N}, sn_ratio = 0.6, nonnegative::Bool = false) where {T <: Number, N}
     tnsr_noise = randn(size(tnsr)...)
     if nonnegative
         tnsr_noise .= max.(tnsr_noise, 0.0)

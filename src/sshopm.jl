@@ -21,7 +21,7 @@ SparseArrays.nnz(a::SparseArray) = length(a.vals)
 """
 Convert dense N-dimensional array into N-dimensional a `SparseArray`.
 """
-function SparseArray{T,N}(arr::DenseArray{T,N}) where {T,N}
+function SparseArray{T,N}(arr::DenseArray{T,N}) where {T <: Number, N}
     pos = Vector{CartesianIndex{N}}()
     vals = Vector{T}()
 
@@ -34,7 +34,7 @@ function SparseArray{T,N}(arr::DenseArray{T,N}) where {T,N}
     return SparseArray{T,N}(vals, pos, size(arr))
 end
 
-SparseArray(arr::DenseArray{T, N}) where {T, N} = SparseArray{T,N}(arr)
+SparseArray(arr::DenseArray{T, N}) where {T <: Number, N} = SparseArray{T,N}(arr)
 
 """
 SS-HOPM (Shifted Symmetric Higher-order Power Method)
@@ -44,7 +44,7 @@ function sshopm(tnsr::AbstractArray{T,N},
                 alpha::Real;
                 tol::Float64=1e-5,
                 maxiter::Int=1000,
-                verbose::Bool=false) where {T,N}
+                verbose::Bool=false) where {T <: Number, N}
 
     r = size(tnsr, 1)
     all(isequal(r), size(tnsr)) || throw(DimensionMismatch("Input tensor should have the same dimension in all modes, got $(size(tnsr))."))
@@ -69,7 +69,7 @@ function sshopm(tnsr::AbstractArray{T,N},
 end
 
 # (N-1)-way tensor × vector contraction
-function nmul(tnsr::AbstractArray{T,N}, x::Vector{T}) where {T, N}
+function nmul(tnsr::AbstractArray{T,N}, x::Vector{T}) where {T <: Number, N}
     v = copy(tnsr)
     for i in 2:N
         v = tensorcontract(v, collect(i-1:N), x, N)
@@ -78,7 +78,7 @@ function nmul(tnsr::AbstractArray{T,N}, x::Vector{T}) where {T, N}
 end
 
 # (N-1)-way sparse tensor × vector contraction
-function nmul(tnsr::SparseArray{T,N}, x::Vector{T}) where {T, N}
+function nmul(tnsr::SparseArray{T,N}, x::Vector{T}) where {T <: Number, N}
     v = zeros(T, size(tnsr, 1))
     @inbounds for i in 1:nnz(tnsr)
         posi = tnsr.pos[i]

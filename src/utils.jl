@@ -4,7 +4,7 @@ import DistributedArrays
 
 function tensorcontractmatrix!(dest::AbstractArray{T,N}, src::AbstractArray{T,N},
 							   mtx::StridedMatrix{T}, n::Int;
-							   transpose::Bool=false, method::Symbol=:BLAS) where {T,N}
+							   transpose::Bool=false, method::Symbol=:BLAS) where {T <: Number, N}
 	#@info "TTM: dest=$(size(dest)) src=$(size(src)) mtx=$(size(mtx)) n=$n transpose=$transpose method=$method"
 	# @show ntuple(i -> i<n ? i : (i+1), N-1)
 	# @show (n,)
@@ -47,7 +47,7 @@ function tensorcontractmatrix!(dest::AbstractArray{T,N}, src::AbstractArray{T,N}
 	# @show dest
 end
 
-tensorcontractmatrix(tnsr::AbstractArray{T,N}, mtx::StridedMatrix{T}, n::Int; transpose::Bool=false, method=nothing) where {T, N} =
+tensorcontractmatrix(tnsr::AbstractArray{T,N}, mtx::StridedMatrix{T}, n::Int; transpose::Bool=false, method=nothing) where {T <: Number, N} =
 	tensorcontractmatrix!(Array{T, N}(undef, ntuple(i -> i != n ? size(tnsr, i) : size(mtx, transpose ? 1 : 2), N)), tnsr, mtx, n, transpose=transpose, method=method)
 
 """
@@ -61,7 +61,7 @@ Contract N-mode tensor and M matrices.
 """
 function tensorcontractmatrices!(dest::Array{T,N}, src::Array{T,N}, matrices::Any,
 								 modes::Any = 1:length(matrices);
-								 transpose::Bool=false, method::Symbol=:BLAS) where {T,N}
+								 transpose::Bool=false, method::Symbol=:BLAS) where {T <: Number, N}
 	length(matrices) == length(modes) ||
 		throw(ArgumentError("The number of matrices doesn't match the length of mode sequence"))
 	for i in 1:length(matrices)-1
@@ -198,7 +198,7 @@ function _unfold(tnsr::StridedArray, row_modes::Vector{Int}, col_modes::Vector{I
 	dims = size(tnsr)
 	return reshape(permutedims(tnsr, [row_modes; col_modes]), prod(dims[row_modes]), prod(dims[col_modes]))
 end
-function _unfold(tnsr::DistributedArrays.DArray{T,N,Array{T,N}}, row_modes::Vector{Int}, col_modes::Vector{Int}) where {T, N}
+function _unfold(tnsr::DistributedArrays.DArray{T,N,Array{T,N}}, row_modes::Vector{Int}, col_modes::Vector{Int}) where {T <: Number, N}
 	length(row_modes) + length(col_modes) == ndims(tnsr) ||
 		throw(ArgumentError("column and row modes should be disjoint subsets of 1:$(ndims(tnsr))"))
 	dims = size(tnsr)
@@ -255,7 +255,7 @@ Checks the validity of the core tensor dimensions, where core tensor is `r^N` hy
 _check_tensor(tensor::AbstractArray{<:Number, N}, r::Integer) where N =
 	_check_tensor(tensor, ntuple(_ -> r, N))
 
-function distribute(X::AbstractArray{T,N}) where {T,N}
+function distribute(X::AbstractArray{T,N}) where {T <: Number, N}
 	sz = size(X)
 	@info "Dimension 1: Distributing array with size $(sz)"
 	dX = DistributedArrays.distribute(X)

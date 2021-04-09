@@ -34,7 +34,7 @@ struct SPNNTuckerHelper{T<:Number, N}
 
 	function SPNNTuckerHelper(tnsr::AbstractArray{T,N}, core_dims::NTuple{N,Int},
 							  lambdas::Vector{T}, bounds::Vector{T},
-							  Lmin::Float64; verbose::Bool=false) where {T, N}
+							  Lmin::Float64; verbose::Bool=false) where {T <: Number, N}
 		verbose && @info("Precomputing input tensor unfoldings...")
 		tnsr_dims = size(tnsr)
 		new{T,N}(tnsr, norm(tnsr), core_dims,
@@ -48,7 +48,7 @@ end
 acquire!(helper::SPNNTuckerHelper, size) = acquire!(helper.arr_pool, size)
 release!(helper::SPNNTuckerHelper, size) = release!(helper.arr_pool, size)
 
-function _spnntucker_update_tensorXfactors_low!(helper::SPNNTuckerHelper{T,N}, decomp::Tucker{T,N}) where {T,N}
+function _spnntucker_update_tensorXfactors_low!(helper::SPNNTuckerHelper{T,N}, decomp::Tucker{T,N}) where {T <: Number, N}
 	tensorcontractmatrix!(helper.tnsrXfactors_low[1], helper.tnsr,
 						  decomp.factors[1], 1)
 	for n in 2:N
@@ -58,7 +58,7 @@ function _spnntucker_update_tensorXfactors_low!(helper::SPNNTuckerHelper{T,N}, d
 	return helper
 end
 
-function _spnntucker_factor_grad_components!(helper::SPNNTuckerHelper{T,N}, decomp::Tucker{T,N}, n::Int) where {T,N}
+function _spnntucker_factor_grad_components!(helper::SPNNTuckerHelper{T,N}, decomp::Tucker{T,N}, n::Int) where {T <: Number, N}
 	all_but_n = [1:(n-1); (n+1):N]
 	cXa_size = (size(helper.tnsr)[1:n-1]..., helper.core_dims[n], size(helper.tnsr)[(n+1):N]...)
 	coreXantifactor = tensorcontractmatrices!(acquire!(helper, cXa_size),
@@ -74,7 +74,7 @@ function _spnntucker_factor_grad_components!(helper::SPNNTuckerHelper{T,N}, deco
 	return cXa2, tXcXa
 end
 
-function _spnntucker_reg_penalty(decomp::Tucker{T,N}, lambdas::Vector{T}) where {T,N}
+function _spnntucker_reg_penalty(decomp::Tucker{T,N}, lambdas::Vector{T}) where {T <: Number, N}
 	res = 0.0
 	for i in 1:N
 		res += lambdas[i] > 0.0 ? (lambdas[i] * sum(decomp.factors[i])) : 0.0
@@ -117,7 +117,7 @@ end
 function _spnntucker_update_factor!(
 	helper::SPNNTuckerHelper{T,N}, dest::Tucker{T,N}, src::Tucker{T,N},
 	dest_factor2s::Vector{Matrix{T}}, n::Int
-) where {T,N}
+) where {T <: Number, N}
 	coreXantifactor2, tnsrXcoreXantifactor = _spnntucker_factor_grad_components!(helper, dest, n)::Tuple{Matrix{T}, Matrix{T}}
 	factorXcoreXantifactor2 = mul!(acquire!(helper, size(src.factors[n])), src.factors[n], coreXantifactor2)
 
@@ -153,7 +153,7 @@ end
 function _spnntucker_update_proxy_factor!(
 	proxy::Tucker{T,N}, cur::Tucker{T,N}, prev::Tucker{T,N},
 	n::Integer, w::Number
-) where {T,N}
+) where {T <: Number, N}
 	@assert size(proxy.factors[n]) == size(cur.factors[n]) == size(prev.factors[n])
 	@inbounds proxy.factors[n] .= cur.factors[n] .+ w .* (cur.factors[n] .- prev.factors[n])
 	return proxy.factors[n]
@@ -161,7 +161,7 @@ end
 
 function _spnntucker_update_proxy_core!(
 	proxy::Tucker{T,N}, cur::Tucker{T,N}, prev::Tucker{T,N}, w::Number
-) where {T,N}
+) where {T <: Number, N}
 	@assert size(proxy.core) == size(cur.core) == size(prev.core)
 	@inbounds proxy.core .= cur.core .+ w .* (cur.core .- prev.core)
 	return proxy
@@ -214,7 +214,7 @@ function spnntucker(tnsr::AbstractArray{T, N}, core_dims::NTuple{N, Int};
 					lambdas::Vector{T} = convert.(T, fill(0.0, N+1)),
 					Lmin::Float64 = 1.0, rw::Float64=0.9999,
 					bounds::Vector{T} = convert.(T, fill(Inf, N+1)), ini_decomp::Union{Symbol,Tucker{T,N}}=:none,
-					verbose::Bool=false) where {T,N}
+					verbose::Bool=false) where {T <: Number, N}
 	start_time = time()
 
 	# define "kernel" functions for "fixing" the core tensor after iteration
